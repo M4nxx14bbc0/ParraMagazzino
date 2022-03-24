@@ -11,7 +11,7 @@
         <h3>Inserisci un nuovo tipo di prodotto</h3>
         <fieldset>
             <p><input type="text" name="codice" id="codice" placeholder="123456789" required></p>
-            <p><input type="text" name="name" id="name" placeholder="nome" required></p>
+            <p><input type="text" name="nome" id="nome" placeholder="nome" required></p>
             <p><input type="number" name="num" id="num" min="0" value="0"></p>
             <p><button type="submit" id="b1">Add</button></p>
         </fieldset>
@@ -24,23 +24,18 @@
                 var nome = $('#nome').val();
                 var quantita = $('#num').val();
                 $.ajax({
-                    url: "http://localhost:3000/api/addNewElement",
-                    method: "post",
-                    dataType: "json",
+                    url: "http://localhost:3000/api/insertNewElement",
+                    method: "POST",
                     data: {
-                        codice: {
-                            "nome": nome,
-                            "quantita": quantita
-                        }
+                        "codice": codice,
+                        "nome": nome,
+                        "quantita": quantita
                     },
                     success: (data)=>{
                         $('#table').append("<tr><td>"+codice+"</td><td>"+nome+"</td><td>"+quantita+"</td></tr>");
-                        $('body').css("background-color", "red");
-                        window.location.href="home.html";
-                        window.location.replace("home.html"); //rimuove dalla storia di navigazione
                     },
                     error: (err)=>{
-                        $('body').css("background-color", "red");
+                        console.log(err);
                     }
                 });
             });
