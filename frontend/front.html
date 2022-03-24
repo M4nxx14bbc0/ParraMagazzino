@@ -10,9 +10,9 @@
         <h1>Gestisci i tuoi prodotti</h1>
         <h3>Inserisci un nuovo tipo di prodotto</h3>
         <fieldset>
-            <p><input type="text" name="codice" id="codice" placeholder="123456789" required></p>
-            <p><input type="text" name="nome" id="nome" placeholder="nome" required></p>
-            <p><input type="number" name="num" id="num" min="0" value="0"></p>
+            <p><input type="text" id="codice" placeholder="123456789" required></p>
+            <p><input type="text" id="nome" placeholder="nome" required></p>
+            <p><input type="number" id="num" min="0" value="0"></p>
             <p><button type="submit" id="b1">Add</button></p>
         </fieldset>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"
@@ -23,19 +23,16 @@
                 var codice = $('#codice').val();
                 var nome = $('#nome').val();
                 var quantita = $('#num').val();
+                console.log("Valori", codice, nome, quantita);
                 $.ajax({
-                    url: "http://localhost:3000/api/insertNewElement",
-                    method: "POST",
-                    data: {
-                        "codice": codice,
-                        "nome": nome,
-                        "quantita": quantita
-                    },
+                    url: "http://localhost:3000/api/insertNewElement?codice="+codice+"&nome="+nome+"&quantita="+quantita,
+                    method: "GET",
                     success: (data)=>{
-                        $('#table').append("<tr><td>"+codice+"</td><td>"+nome+"</td><td>"+quantita+"</td></tr>");
+                        $('#table').append("<tr><td>"+codice+"</td><td>"+nome+"</td><td><button id='"+codice+"'>-</button>"+quantita+"<button type='submit' id='"+codice+"'>+</button></td></tr>");
                     },
                     error: (err)=>{
                         console.log(err);
+                        $('#table').append("<tr><td>"+codice+"</td><td>"+nome+"</td><td><button id='"+codice+"'>-</button>  "+quantita+"  <button type='submit' id='"+codice+"'>+</button></td></tr>");
                     }
                 });
             });

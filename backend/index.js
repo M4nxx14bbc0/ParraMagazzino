@@ -22,11 +22,11 @@ apiServer.get("/", (request, response)=>{
     response.send("Ciao client sei in home");
 });
 
-apiServer.post("/api/insertNewElement",  (request, response)=>{
+apiServer.get("/api/insertNewElement",  (request, response)=>{
     console.log("Request: ", request.body);
     conn.query(
         'INSERT INTO c188_prm_5AI_2122.magazzino(codice, nome, quantita) VALUES (?, ?, ?)',
-        [request.body.codice, request.body.nome, request.body.quantita],
+        [request.query.codice, request.query.nome, request.query.quantita],
         (err, result)=>{
             console.log("Analysis: ", err, result);
             response.setHeader("Content-Type", "application/json");
