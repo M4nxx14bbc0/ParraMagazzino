@@ -23,20 +23,21 @@ apiServer.get("/", (request, response)=>{
 });
 
 apiServer.get("/api/insertNewElement",  (request, response)=>{
-    console.log("Request: ", request.body);
+    console.log("Request: ", request.query);
     conn.query(
         'INSERT INTO c188_prm_5AI_2122.magazzino(codice, nome, quantita) VALUES (?, ?, ?)',
         [request.query.codice, request.query.nome, request.query.quantita],
         (err, result)=>{
             console.log("Analysis: ", err, result);
             response.setHeader("Content-Type", "application/json");
-            if(result[0].utenti==1)
-                response.sendStatus(200).json({message:'Element inserted!'});
+            if(result !== undefined)
+                response.status(200).json({message:'Element inserted!'});
             else
-                response.sendStatus(400).json({message:'Element not inserted!'});
+                response.status(400).json({message:'Element not inserted!'});
         }
     );
 });
+
 apiServer.delete("/api/deleteElement",  (request, response)=>{
     console.log("Request: ", request.query);
     conn.query(
@@ -70,15 +71,14 @@ apiServer.put("/api/updateElementNumber",  (request, response)=>{
 apiServer.get("/api/getAllElements",  (request, response)=>{
     console.log("Request: ", request.query);
     conn.query(
-        'SELECT count(*) AS utenti FROM c188_prm_5AI_2122.user WHERE mail="?" AND pass="?";',
-        [request.query.mail, request.query.pass],
+        'SELECT * FROM c188_prm_5AI_2122.magazzino',
         (err, result)=>{
             console.log(result);
             response.setHeader("Content-Type", "application/json");
             if(result[0].utenti==1)
-                response.sendStatus(200).json({message:'Login effetuato!'});
+                response.status(200).json({message:'Login effetuato!'});
             else
-                response.sendStatus(400).json({message:'Login fallito!'});
+                response.status(400).json({message:'Login fallito!'});
         }
     );
 });
