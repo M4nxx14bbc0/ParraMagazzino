@@ -25,7 +25,7 @@ apiServer.get("/", (request, response)=>{
 apiServer.post("/api/insertNewElement",  (request, response)=>{
     console.log("Request: ", request.query);
     conn.query(
-        'SELECT count(*) AS utenti FROM c188_prm_5AI_2122.user WHERE mail="?" AND pass="?";',
+        'INSERT INTO magazzino(codice, nome, quantita) VALUES VALUES (?, ?, ?)',
         [request.query.mail, request.query.pass],
         (err, result)=>{
             console.log("Analysis: ", err, result);

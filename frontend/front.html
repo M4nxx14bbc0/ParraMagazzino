@@ -7,34 +7,48 @@
         <title>My magazzino</title>
     </head>
     <body>
-        <h1>Inserire email e password</h1>
+        <h1>Gestisci i tuoi prodotti</h1>
+        <h3>Inserisci un nuovo tipo di prodotto</h3>
         <fieldset>
-            <p><input type="email" name="email" id="email" placeholder="user@example.com" required></p>
-            <p><input type="password" name="pass" id="pass" placeholder="password" required></p>
-            <p><button type="submit" id="b1">Send</button> <button type="reset" id="b2">Reset</button></p>
+            <p><input type="text" name="codice" id="codice" placeholder="123456789" required></p>
+            <p><input type="text" name="name" id="name" placeholder="nome" required></p>
+            <p><input type="number" name="num" id="num" min="0" value="0"></p>
+            <p><button type="submit" id="b1">Add</button></p>
         </fieldset>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
         crossorigin="anonymous"></script>
         <script>
             $('#b1').click(()=>{
-                if($('#email').val() && $('#pass').val()){
-                    console.log('Valori : ', $('#email').val(), $('#pass').val());
-                    $.ajax({
-                        url: "http://localhost:3000/api/login?usrn="+$('#email').val()+"&pswd="+$('#pass').val(),
-                        query: "",
-                        method: "GET",
-                        success: (data)=>{
-                            $('body').css("background-color", "red");
-                            window.location.href="home.html";
-                            window.location.replace("home.html"); //rimuove dalla storia di navigazione
-                        },
-                        error: (err)=>{
-                            $('body').css("background-color", "red");
+                var codice = $('#codice').val();
+                var nome = $('#nome').val();
+                var quantita = $('#num').val();
+                $.ajax({
+                    url: "http://localhost:3000/api/addNewElement",
+                    method: "post",
+                    dataType: "json",
+                    data: {
+                        codice: {
+                            "nome": nome,
+                            "quantita": quantita
                         }
-                    });
-                }
+                    },
+                    success: (data)=>{
+                        $('#table').append("<tr><td>"+codice+"</td><td>"+nome+"</td><td>"+quantita+"</td></tr>");
+                        $('body').css("background-color", "red");
+                        window.location.href="home.html";
+                        window.location.replace("home.html"); //rimuove dalla storia di navigazione
+                    },
+                    error: (err)=>{
+                        $('body').css("background-color", "red");
+                    }
+                });
             });
         </script>
+        <fieldset>
+            <table id="table">
+                <tr><th>Codice</th><th>Nome</th><th>Quantità</th></tr>
+            </table>
+        </fieldset>
     </body>
 </html>
