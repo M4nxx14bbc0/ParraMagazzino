@@ -41,14 +41,14 @@
                     url: "http://localhost:3000/api/getAllElements",
                     method: "GET",
                     success: (data)=>{
-                        $('#table').append("<tr><td>"+codice+"</td><td>"+nome+"</td><td><button id='"+codice+"'>-</button>"+quantita+"<button type='submit' id='"+codice+"'>+</button></td></tr>");
+                        console.log(data);
                     },
                     error: (err)=>{
                         alert(err);
                     }
                 });
-            });
-            }
+            };
+            
         </script>
         <fieldset>
             <table id="table">
