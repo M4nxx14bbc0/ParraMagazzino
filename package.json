@@ -1,0 +1,24 @@
+{
+  "name": "parramagazzino",
+  "version": "1.0.0",
+  "description": "",
+  "main": "backend/index.js",
+  "scripts": {
+    "test": "node backend/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/M4nxx14bbc0/ParraMagazzino.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/M4nxx14bbc0/ParraMagazzino/issues"
+  },
+  "homepage": "https://github.com/M4nxx14bbc0/ParraMagazzino#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "mysql2": "^2.3.3"
+  }
+}
