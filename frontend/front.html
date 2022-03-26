@@ -65,6 +65,17 @@
                 });
             });
 
+            var request = new XMLHttpRequest();
+            request.open('PUT','http://localhost:3000/api/updateElementNumber', false);
+            request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            request.setRequestHeader('Accept','application/json, text/javascript, */*; q=0.01');
+            request.onreadystatechange = ()=>{
+                if(this.readyState === XMLHttpRequest.DONE && this.status == 200){
+                    update();
+                    console.log("Response : ", this.response);
+                }
+            };
+            request.send(JSON.stringify({ codice: "bjkb", quantita: 2 }));
             var quantity = (nome)=>{
                 var data = {
                     codice: nome.name,
@@ -78,7 +89,7 @@
                             method:"PUT",
                             contentType:"application/json",
                             dataType:"json",
-                            data: data,
+                            data: JSON.stringify(data),
                             success: (data)=>{
                                 update();
                             },

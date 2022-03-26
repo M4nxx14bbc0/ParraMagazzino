@@ -42,7 +42,7 @@ apiServer.post("/api/insertNewElement",  (request, response)=>{
 apiServer.delete("/api/deleteElement",  (request, response)=>{
     console.log("Request: ", request.query);
     conn.query(
-        'DELETE FROM test.magazzino WHERE codice="?";',
+        'DELETE FROM test.magazzino WHERE codice=?;',
         request.body.codice,
         (err, result)=>{
             console.log("Analysis: ", err);
@@ -56,28 +56,26 @@ apiServer.delete("/api/deleteElement",  (request, response)=>{
 });
 
 apiServer.put("/api/updateElementNumber",  (request, response)=>{
-    console.log("Request: ", request.body);
-    var form = formidable({multiples:true}), json = {};
-    form.parse(request,(err, fields, files)=>{
+    var form = formidable({multiples:true});
+    form.parse(request,(err, fields)=>{
         if(err){
-            console.log(err);
+            console.log("Err",err);
             response.status(400).json({message:'Update failed!'});
             return null;
         } else {
-            console.log(fields, files);
+            console.log("Richiesta a questo stronzo",fields);
+            conn.query(
+                'UPDATE test.magazzino SET quantita=? WHERE codice="?";',
+                [parseInt(fields.quantita), fields.codice],
+                (err)=>{
+                    if(err)
+                        response.status(400).json({message:'Update failed!'});
+                    else
+                        response.status(200).json({message:'Updated!'});
+                }
+            );
         }
     })
-    conn.query(
-        'UPDATE test.magazzino SET quantita=? WHERE codice="?";',
-        [parseInt(request.body.quantita), request.body.codice],
-        (err, result)=>{
-            console.log(result);
-            if(result)
-                response.status(200).json({message:'Updated!'});
-            else
-                response.status(400).json({message:'Update failed!'});
-        }
-    );
 });
 apiServer.get("/api/getAllElements",  (request, response)=>{
     conn.query(
