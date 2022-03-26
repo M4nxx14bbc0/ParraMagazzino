@@ -10,45 +10,106 @@
         <h1>Gestisci i tuoi prodotti</h1>
         <h3>Inserisci un nuovo tipo di prodotto</h3>
         <fieldset>
-            <p><input type="text" id="codice" placeholder="123456789" required></p>
-            <p><input type="text" id="nome" placeholder="nome" required></p>
-            <p><input type="number" id="num" min=1 value=1></p>
+            <p><input type="text" id="codice" placeholder="123456789" minlength="1" required></p>
+            <p><input type="text" id="nome" placeholder="nome" minlength="1" required></p>
+            <p><input type="number" id="num" min="1" value="1" required></p>
             <p><button type="submit" id="b1">Add</button></p>
         </fieldset>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-        crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
-            $('#b1').click(()=>{
-                var codice = $('#codice').val();
-                var nome = $('#nome').val();
-                var quantita = $('#num').val();
-                console.log("Valori", codice, nome, quantita);
-                $.ajax({
-                    url: "http://localhost:3000/api/insertNewElement?codice="+codice+"&nome="+nome+"&quantita="+quantita,
-                    method: "GET",
-                    success: (data)=>{
-                        $('#table').append("<tr><td>"+codice+"</td><td>"+nome+"</td><td><button id='"+codice+"'>-</button>"+quantita+"<button type='submit' id='"+codice+"'>+</button></td></tr>");
-                    },
-                    error: (err)=>{
-                        alert(err);
-                    }
-                });
-            });
-
             var update = ()=>{
                 $.ajax({
                     url: "http://localhost:3000/api/getAllElements",
                     method: "GET",
                     success: (data)=>{
-                        console.log(data);
+                        var s = 1;
+                        console.log(data.message);
+                        for(let i of data.data){
+                            var html = "<tr><td>"+i.codice+"</td><td>"+i.nome+"</td>"+
+                                    "<td><button name='"+i.codice+"' onclick='quantity(this)' value='"+i.quantita+"'>-</button>  "+i.quantita+
+                                    "   <button name='"+i.codice+"' onclick='quantity(this)' value='"+i.quantita+"'>+</button></td></tr>";
+                            if($('#table').children()[0].children.length > s){
+                                $('#table').children()[0].children[s].innerHTML = html;
+                            } else {
+                                $('#table').children().append(html);
+                            }
+                            s++;
+                        }
                     },
                     error: (err)=>{
+                        console.error("Can't retrieve data", err);
                         alert(err);
                     }
                 });
             };
-            
+            update();
+
+            $('#b1').click(()=>{
+                var data = {
+                    codice: $('#codice').val(),
+                    nome: $('#nome').val(),
+                    quantita: $('#num').val()
+                };
+                console.log("Valori", $('#codice').val(), $('#nome').val(), $('#num').val());
+                $.post({
+                    url: "http://localhost:3000/api/insertNewElement",
+                    dataType: "json",
+                    data: data,
+                    success: (data)=>{
+                        update();
+                    },
+                    error: (err)=>{
+                        console.error(err.responseJSON);
+                        alert(err.responseJSON.message);
+                    }
+                });
+            });
+
+            var quantity = (nome)=>{
+                var data = {
+                    codice: nome.name,
+                    quantita: nome.value
+                };
+                switch(nome.innerHTML){
+                    case "+":
+                        data.quantita-="-1";
+                        console.log(data);
+                        $.ajax("http://localhost:3000/api/updateElementNumber",{
+                            method:"PUT",
+                            contentType:"application/json",
+                            dataType:"json",
+                            data: data,
+                            success: (data)=>{
+                                update();
+                            },
+                            error: (err, text)=>{
+                                console.error(err.statusText);
+                                alert(err.responseJSON.message);
+                            }
+                        });
+                        break;
+                    default:
+                        if(nome.value > 1) {
+                            data.quantita-="1";
+                            console.log(data);
+                            $.ajax("http://localhost:3000/api/updateElementNumber",{
+                                method:"PUT",
+                                contentType:"application/json",
+                                dataType:"json",
+                                data: data,
+                                success: (data)=>{
+                                    update();
+                                },
+                                error: (err, text)=>{
+                                    console.error(err.responseJSON);
+                                    alert(err.responseJSON.message);
+                                }
+                            });
+                        } else
+                            alert('Too little number');
+                        break;
+                }
+            }
         </script>
         <fieldset>
             <table id="table">

@@ -2,31 +2,32 @@ var express = require("express");
 var apiServer = express();
 var cors = require("cors");
 const mysql = require("mysql2");
+var jsonBody = require('body-parser');
+var formidable = require('formidable');
+apiServer.use(cors());
+apiServer.use(jsonBody.urlencoded({extended:true}));
 
-var port = 3000;
-var host = "localhost";
+const port = 3000;
+const host = "localhost";
 apiServer.listen(port, host, () => {
     console.log("Server running at http://%s:%d", host, port);
 });
 
 const conn = mysql.createConnection({
-    host: 'parrarodriguez.manue.tave.osdb.it',
-    user: 'c188_prm_5AI',
-    database: 'c188_prm_5AI_2122',
-    password: 'Az-52761'
+    host: 'localhost',
+    user: 'root',
+    database: 'test'
 });
 
-apiServer.use(cors());
 
 apiServer.get("/", (request, response)=>{
     response.send("Ciao client sei in home");
 });
 
-apiServer.get("/api/insertNewElement",  (request, response)=>{
-    console.log("Request: ", request.query);
-    conn.query(
-        'INSERT INTO c188_prm_5AI_2122.magazzino(codice, nome, quantita) VALUES (?, ?, ?)',
-        [request.query.codice, request.query.nome, request.query.quantita],
+apiServer.post("/api/insertNewElement",  (request, response)=>{
+    console.log("Request: ", request.body);
+    conn.query('INSERT INTO test.magazzino VALUES (?, ?, ?)',
+        [request.body.codice, request.body.nome, request.body.quantita],
         (err, result)=>{
             console.log("Analysis: ", err, result);
             response.setHeader("Content-Type", "application/json");
@@ -41,44 +42,53 @@ apiServer.get("/api/insertNewElement",  (request, response)=>{
 apiServer.delete("/api/deleteElement",  (request, response)=>{
     console.log("Request: ", request.query);
     conn.query(
-        'DELETE FROM c188_prm_5AI_2122.magazzino WHERE codice="?";',
+        'DELETE FROM test.magazzino WHERE codice="?";',
         request.body.codice,
         (err, result)=>{
             console.log("Analysis: ", err);
             response.setHeader("Content-Type", "application/json");
             if(err==null)
-                response.sendStatus(200).json({message:'Successful Sign Up!'});
+                response.status(200).json({message:'Successful Sign Up!'});
             else
-                response.sendStatus(400).json({message:'Failed To Sign In!'});
+                response.status(400).json({message:'Failed To Sign In!'});
         }
     );
 });
+
 apiServer.put("/api/updateElementNumber",  (request, response)=>{
-    console.log("Request: ", request.query);
+    console.log("Request: ", request.body);
+    var form = formidable({multiples:true}), json = {};
+    form.parse(request,(err, fields, files)=>{
+        if(err){
+            console.log(err);
+            response.status(400).json({message:'Update failed!'});
+            return null;
+        } else {
+            console.log(fields, files);
+        }
+    })
     conn.query(
-        'UPDATE c188_prm_5AI_2122.magazzino SET quantita="?" WHERE codice="?";',
-        [request.body.quantita, request.body.codice],
+        'UPDATE test.magazzino SET quantita=? WHERE codice="?";',
+        [parseInt(request.body.quantita), request.body.codice],
         (err, result)=>{
             console.log(result);
-            response.setHeader("Content-Type", "application/json");
-            if(result[0].utenti==1)
-                response.sendStatus(200).json({message:'Login effetuato!'});
+            if(result)
+                response.status(200).json({message:'Updated!'});
             else
-                response.sendStatus(400).json({message:'Login fallito!'});
+                response.status(400).json({message:'Update failed!'});
         }
     );
 });
 apiServer.get("/api/getAllElements",  (request, response)=>{
-    console.log("Request: ", request.query);
     conn.query(
-        'SELECT * FROM c188_prm_5AI_2122.magazzino',
+        'SELECT * FROM test.magazzino',
         (err, result)=>{
             console.log(result);
             response.setHeader("Content-Type", "application/json");
-            if(result[0].utenti==1)
-                response.status(200).json({message:'Login effetuato!'});
+            if(result)
+                response.status(200).json({data: result, message:'Successfully retrieved data'});
             else
-                response.status(400).json({message:'Login fallito!'});
+                response.status(400).json({message:'Can\'t retrieve data!'});
         }
     );
 });
