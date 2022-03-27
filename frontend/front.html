@@ -17,23 +17,42 @@
         </fieldset>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
-            var update = ()=>{
+            var update = (select)=>{
+                var url = "http://localhost:3000/api/getAllElements";
+                if(select)
+                    url += "?codice="+select;
+                console.log(url);
                 $.ajax({
-                    url: "http://localhost:3000/api/getAllElements",
+                    url: url,
                     method: "GET",
                     success: (data)=>{
-                        var s = 1;
-                        console.log(data.message);
-                        for(let i of data.data){
-                            var html = "<tr><td>"+i.codice+"</td><td>"+i.nome+"</td>"+
-                                    "<td><button name='"+i.codice+"' onclick='quantity(this)' value='"+i.quantita+"'>-</button>  "+i.quantita+
-                                    "   <button name='"+i.codice+"' onclick='quantity(this)' value='"+i.quantita+"'>+</button></td></tr>";
-                            if($('#table').children()[0].children.length > s){
-                                $('#table').children()[0].children[s].innerHTML = html;
-                            } else {
-                                $('#table').children().append(html);
+                        if(select){
+                            var string = false;
+                            var html = "<tr><td>"+data.data[0].codice+"</td><td>"+data.data[0].nome+"</td>"+
+                                "<td><button name='"+data.data[0].codice+"' onclick='quantity(this)' value='"+data.data[0].quantita+"'>-</button>  "+data.data[0].quantita+
+                                "   <button name='"+data.data[0].codice+"' onclick='quantity(this)' value='"+data.data[0].quantita+"'>+</button></td></tr>";
+                            for(let row of $('#table').children()[0].children){
+                                if(row.innerHTML.includes(select)){
+                                    row.innerHTML = html;
+                                    string = true;
+                                    break;
+                                }
                             }
-                            s++;
+                            if(!string)
+                                $('#table').children().append(html);
+                        } else {
+                            var s = 1;
+                            for(let i of data.data){
+                                var html = "<tr><td>"+i.codice+"</td><td>"+i.nome+"</td>"+
+                                        "<td><button name='"+i.codice+"' onclick='quantity(this)' value='"+i.quantita+"'>-</button>  "+i.quantita+
+                                        "   <button name='"+i.codice+"' onclick='quantity(this)' value='"+i.quantita+"'>+</button></td></tr>";
+                                if($('#table').children()[0].children.length > s){
+                                    $('#table').children()[0].children[s].innerHTML = html;
+                                } else {
+                                    $('#table').children().append(html);
+                                }
+                                s++;
+                            }
                         }
                     },
                     error: (err)=>{
@@ -45,7 +64,7 @@
             update();
 
             $('#b1').click(()=>{
-                var data = {
+                var body = {
                     codice: $('#codice').val(),
                     nome: $('#nome').val(),
                     quantita: $('#num').val()
@@ -54,9 +73,9 @@
                 $.post({
                     url: "http://localhost:3000/api/insertNewElement",
                     dataType: "json",
-                    data: data,
+                    data: body,
                     success: (data)=>{
-                        update();
+                        update(body.codice);
                     },
                     error: (err)=>{
                         console.error(err.responseJSON);
@@ -64,11 +83,11 @@
                     }
                 });
             });
-
+            /*
             var request = new XMLHttpRequest();
             request.open('PUT','http://localhost:3000/api/updateElementNumber', false);
             request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-            request.setRequestHeader('Accept','application/json, text/javascript, */*; q=0.01');
+            request.setRequestHeader('Accept','application/json, text/javascript, *//*; q=0.01');
             request.onreadystatechange = ()=>{
                 if(this.readyState === XMLHttpRequest.DONE && this.status == 200){
                     update();
@@ -76,22 +95,22 @@
                 }
             };
             request.send(JSON.stringify({ codice: "bjkb", quantita: 2 }));
+            */
             var quantity = (nome)=>{
-                var data = {
+                var body = {
                     codice: nome.name,
                     quantita: nome.value
                 };
                 switch(nome.innerHTML){
                     case "+":
-                        data.quantita-="-1";
-                        console.log(data);
+                        body.quantita-="-1";
                         $.ajax("http://localhost:3000/api/updateElementNumber",{
                             method:"PUT",
                             contentType:"application/json",
                             dataType:"json",
-                            data: JSON.stringify(data),
+                            data: JSON.stringify(body),
                             success: (data)=>{
-                                update();
+                                update(body.codice);
                             },
                             error: (err, text)=>{
                                 console.error(err.statusText);
@@ -101,15 +120,14 @@
                         break;
                     default:
                         if(nome.value > 1) {
-                            data.quantita-="1";
-                            console.log(data);
+                            body.quantita-="1";
                             $.ajax("http://localhost:3000/api/updateElementNumber",{
                                 method:"PUT",
                                 contentType:"application/json",
                                 dataType:"json",
-                                data: data,
+                                data: JSON.stringify(body),
                                 success: (data)=>{
-                                    update();
+                                    update(body.codice);
                                 },
                                 error: (err, text)=>{
                                     console.error(err.responseJSON);
